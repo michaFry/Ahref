@@ -1,0 +1,59 @@
+﻿theme,seed,keyword,volume,kd,cpc,intent,is_question,parent_topic,opportunity_score,seasonality_coef,peak_month,is_seasonal
+bourse_long_terme,ETF,etf pea,8100,48,1.2,commercial,False,ETF,214.9,1.11,7,False
+bourse_long_terme,ETF,etf pea world,2900,30,1.2,commercial,False,Etf,121.61,1.08,7,False
+bourse_long_terme,ETF,msci world etf,2900,30,1.4,commercial,False,ETF,121.61,1.07,1,False
+bourse_long_terme,ETF,etf monde capitalisant,2400,26,1.4,commercial,False,ETF,115.56,1.13,3,False
+bourse_long_terme,PEA,ouvrir pea credit agricole,1900,25,1.8,transactional,False,PEA,109.62,1.11,6,False
+bourse_long_terme,PEA,meilleur etf pea,2400,28,1.3,commercial,False,ETF,107.59,1.07,1,False
+bourse_long_terme,PEA,pea fonctionnement,3600,35,0.9,informational,False,PEA,100.0,1.08,5,False
+bourse_long_terme,ETF,etf pea sp500,1900,28,1.0,commercial,False,Etf,85.17,1.12,3,False
+bourse_long_terme,DCA,dca bourse,1900,22,0.7,informational,False,DCA,82.61,1.08,1,False
+bourse_long_terme,ETF,cw8 ou ewld,1100,22,0.8,commercial,False,Etf,62.17,1.08,2,False
+bourse_long_terme,PEA,compte titres ou pea,1300,28,0.7,commercial,False,PEA,58.28,1.08,8,False
+bourse_long_terme,ETF,etf émergents pea,880,26,0.9,commercial,False,Etf,42.37,1.09,2,False
+bourse_long_terme,dividendes,fiscalité dividendes pea,880,24,0.5,informational,False,PEA,35.2,3.47,5,True
+bourse_long_terme,dividendes,dividendes mensuels,880,24,0.7,informational,False,Dividendes,35.2,1.14,11,False
+bourse_long_terme,dividendes,dividendes aristocrats europe,720,22,0.9,informational,False,Dividendes,31.3,1.12,6,False
+bourse_long_terme,ETF,portefeuille etf permanent,590,24,1.0,informational,False,ETF,23.6,1.11,6,False
+credit_immobilier,renégocier prêt,renégocier prêt immobilier,1900,30,1.6,transactional,False,Crédit,91.94,1.1,10,False
+credit_immobilier,HCSF,dscr investissement locatif,720,24,0.9,informational,False,Hcsf,28.8,1.11,9,False
+credit_immobilier,HCSF,dérogation hcsf,590,22,0.8,informational,False,Hcsf,25.65,1.08,2,False
+credit_immobilier,HCSF,hcsf 2026,480,18,0.8,informational,False,HCSF,25.26,1.08,5,False
+credit_immobilier,HCSF,hcsf 35 ans crédit,480,20,0.7,informational,False,Hcsf,22.86,1.07,7,False
+independance_financiere,indépendance financière,indépendance financière,5400,42,1.1,informational,False,FIRE,125.58,1.12,6,False
+independance_financiere,revenu passif,revenu passif immobilier,1900,28,0.9,commercial,False,FIRE,85.17,1.06,7,False
+independance_financiere,retraite anticipée,retraite anticipée 50 ans,1900,30,0.8,informational,False,FIRE,61.29,1.11,1,False
+independance_financiere,rente passive,rente passive,1300,22,0.6,informational,False,FIRE,56.52,1.09,1,False
+independance_financiere,FIRE,4% rule retraite,1300,28,0.6,informational,False,Fire,44.83,1.07,4,False
+independance_financiere,FIRE,méthode FIRE france,880,26,0.7,informational,False,Fire,32.59,1.04,11,False
+independance_financiere,FIRE,combien pour être indépendant financièrement,720,24,0.5,informational,True,Fire,28.8,1.03,1,False
+independance_financiere,retraite anticipée,fire retraite anticipée,720,25,0.5,informational,False,FIRE,27.69,1.11,2,False
+independance_financiere,FIRE,lean fire vs fat fire,480,22,0.5,commercial,False,Fire,27.13,1.04,2,False
+lmnp,LMNP 2026,simulateur lmnp 2026,5400,30,1.5,transactional,False,LMNP,261.29,1.07,4,False
+lmnp,LMNP,lmnp définition,4400,22,0.6,informational,False,LMNP,191.3,1.05,1,False
+lmnp,LMNP,expert comptable lmnp,3600,28,4.2,transactional,False,LMNP,186.21,1.1,8,False
+lmnp,LMNP,simulateur impôts lmnp,2900,28,1.1,transactional,False,Lmnp,150.0,1.09,11,False
+lmnp,LMNP,lmnp réel ou micro bic,2900,22,0.7,informational,False,LMNP,126.09,1.12,6,False
+lmnp,déclaration LMNP,lmnp avantages,2400,22,0.5,informational,False,Déclaration Lmnp,104.35,1.07,2,False
+lmnp,LMNP,amortissement lmnp,2400,25,0.6,informational,False,LMNP,92.31,1.1,5,False
+lmnp,LMNP,déclaration lmnp 2026,1100,18,0.9,transactional,False,LMNP,86.84,3.29,5,True
+lmnp,LMNP,pinel ou lmnp,1900,28,1.2,commercial,False,LMNP,85.17,1.08,1,False
+lmnp,déclaration LMNP,lmnp et impôt sur le revenu,1900,26,0.6,informational,False,Déclaration Lmnp,70.37,1.07,7,False
+lmnp,LMNP 2026,lmnp 2026,1900,28,0.8,informational,False,LMNP,65.52,1.05,12,False
+lmnp,LMNP,simulateur lmnp gratuit,1100,26,1.2,transactional,False,LMNP,61.11,1.06,2,False
+lmnp,LMNP,comment passer en lmnp,1300,22,0.6,informational,True,Lmnp,56.52,1.05,3,False
+lmnp,LMNP,lmnp plafond 23000 euros,880,18,0.4,informational,False,Lmnp,46.32,1.13,11,False
+lmnp,LMNP,lmnp ou lmp,720,22,0.5,commercial,False,LMNP,40.7,1.06,5,False
+lmnp,LMNP,réforme lmnp 2026,880,24,0.7,informational,False,LMNP,35.2,1.06,8,False
+lmnp,LMNP,lmnp tva,720,24,0.7,informational,False,Lmnp,28.8,1.06,1,False
+lmnp,LMNP 2026,lmnp recettes 2026,590,20,0.5,informational,False,Lmnp 2026,28.1,3.41,5,True
+viager_vente_a_terme,calcul viager,calcul viager occupé,2900,26,0.4,informational,False,Viager,107.41,1.06,1,False
+viager_vente_a_terme,viager libre,rente viagère imposable,1900,26,0.5,informational,False,Viager Libre,70.37,1.06,3,False
+viager_vente_a_terme,viager,viager libre vs occupé,880,18,0.4,commercial,False,Viager,60.21,1.11,9,False
+viager_vente_a_terme,viager occupé,viager avantages inconvénients,1300,24,0.6,informational,False,Viager Occupé,52.0,1.04,1,False
+viager_vente_a_terme,viager,achat viager fiscalité,1300,24,0.6,informational,False,Viager,52.0,1.1,11,False
+viager_vente_a_terme,fiscalité viager,fiscalité viager,1300,28,0.5,informational,False,Viager,44.83,1.15,4,False
+viager_vente_a_terme,vente à terme,vente à terme immobilier,880,22,0.6,informational,False,Vente à terme,38.26,1.09,2,False
+viager_vente_a_terme,viager,acheter en viager risques,720,22,0.4,informational,False,Viager,31.3,1.11,12,False
+viager_vente_a_terme,viager,viager sans bouquet,590,20,0.5,informational,False,Viager,28.1,1.08,10,False
+viager_vente_a_terme,viager,bouquet viager calcul,590,20,0.4,informational,False,Viager,28.1,1.12,3,False
