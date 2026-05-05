@@ -18,10 +18,18 @@ cp .env.example .env
 
 ```bash
 python main.py                      # toutes les analyses
+python main.py --mock               # sans token, fixtures synthétiques
 python main.py --skip thematic      # sauter une étape
 python main.py --seasonality        # ajouter l'analyse de saisonnalité
 python main.py --no-cache           # forcer le rafraîchissement
 ```
+
+### Mode mock (`--mock`)
+
+Aucun token Ahrefs requis : `MockAhrefsClient` (`modules/mock_client.py`)
+renvoie un catalogue synthétique réaliste pour esprit-riche.com et 4
+concurrents (LMNP, viager, FIRE, ETF/PEA, HCSF). Idéal pour valider la
+forme des livrables avant d'acheter un plan API.
 
 Sorties dans `./output/` :
 - `positionnement_actuel.csv`

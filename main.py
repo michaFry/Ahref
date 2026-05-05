@@ -10,6 +10,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from modules.ahrefs_client import AhrefsClient, AhrefsConfig, AhrefsError
+from modules.mock_client import MockAhrefsClient
 from modules.analyzers.content_gap import find_content_gap
 from modules.analyzers.positioning import fetch_positioning
 from modules.analyzers.quick_wins import find_quick_wins
@@ -33,6 +34,12 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--no-cache", action="store_true", help="bypass disk cache")
     p.add_argument(
+        "--mock",
+        action="store_true",
+        help="use synthetic fixtures instead of calling the Ahrefs API "
+        "(no token required)",
+    )
+    p.add_argument(
         "--seasonality",
         action="store_true",
         help="run optional seasonality analysis (extra API calls)",
@@ -51,11 +58,15 @@ def main() -> int:
     skip = {s.strip() for s in args.skip.split(",") if s.strip()}
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    try:
-        client = AhrefsClient(AhrefsConfig.from_env())
-    except AhrefsError as exc:
-        print(f"error: {exc}", file=sys.stderr)
-        return 1
+    if args.mock:
+        print("[mock] running with synthetic fixtures (no API calls)")
+        client = MockAhrefsClient()
+    else:
+        try:
+            client = AhrefsClient(AhrefsConfig.from_env())
+        except AhrefsError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 1
 
     competitors = [c.strip() for c in args.competitors.split(",") if c.strip()]
 
