@@ -1,11 +1,12 @@
-# Keywords that mark a post as "relevant" for a gestion-locative SaaS.
-# Matching is case-insensitive, on title + body. One phrase per line.
-# "#" lines are ignored.
+# Mots-clés qui rendent un post "pertinent" pour un SaaS de gestion locative.
+# Recherche insensible à la casse, sur titre + corps. Une expression par ligne.
+# Les lignes "#" sont ignorées.
 
-# --- French: gestion locative core vocabulary ---
+# --- Vocabulaire cœur gestion locative ---
 gestion locative
 logiciel immobilier
 logiciel de gestion
+outil de gestion
 bail
 locataire
 propriétaire bailleur
@@ -16,6 +17,7 @@ quittance de loyer
 dépôt de garantie
 préavis
 loyer impayé
+impayés de loyer
 syndic
 copropriété
 location meublée
@@ -23,23 +25,20 @@ location courte durée
 location saisonnière
 agence immobilière
 mandat de gestion
+investissement locatif
+revenus fonciers
+déclaration foncière
+LMNP
+LMP
+SCI
 
-# --- English: property management / landlord tooling ---
-property management software
-property management tool
-landlord software
-rental management
-tenant screening
-lease management
-rent collection
-rental property
-property manager
-short-term rental
-vacation rental software
-airbnb management
-airbnb tool
-looking for a tool
-recommend a software
-recommend a tool
-any software for
-any tool for
+# --- Signaux d'intention (cherche un outil / une solution) ---
+cherche un logiciel
+cherche un outil
+quel logiciel
+quelle application
+recommandation logiciel
+recommandation outil
+existe-t-il un outil
+existe-t-il un logiciel
+y a-t-il un outil
