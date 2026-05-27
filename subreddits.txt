@@ -1,0 +1,31 @@
+# Subreddits to monitor — SaaS de gestion locative / immobilier
+# One per line. "#" lines are ignored. "r/" prefix optional.
+
+# --- Real estate / property management (EN) ---
+RealEstate
+Landlord
+PropertyManagement
+realestateinvesting
+airbnb_hosts
+shortguide
+vacationrentals
+
+# --- French real estate & rental ---
+immobilier
+france
+vosfinances
+ImmobilierFrance
+locataires
+
+# --- SaaS / entrepreneurship (people building or asking for tools) ---
+SaaS
+microsaas
+Entrepreneur
+SideProject
+EntrepreneurRideAlong
+smallbusiness
+
+# --- French entrepreneurship ---
+entreprendre
+AutoEntrepreneur
+EntrepreneurFr
