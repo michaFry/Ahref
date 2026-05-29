@@ -1,2 +1,7 @@
-data/
+# Logs are noisy; keep them out of git.
+data/monitor.log
+data/cron.out
+# Pages output is rebuilt every run.
+public/
+# Local-run artefact — workflow generates it fresh in CI.
 index.html

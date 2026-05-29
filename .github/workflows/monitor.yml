@@ -1,0 +1,70 @@
+name: Reddit monitor
+
+on:
+  schedule:
+    # Hourly at minute 7 to dodge top-of-hour congestion on GitHub's runners.
+    # NOTE: scheduled workflows only run on the default branch.
+    - cron: "7 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "subreddits.txt"
+      - "keywords.txt"
+      - "monitor.sh"
+      - "render.py"
+      - ".github/workflows/monitor.yml"
+
+permissions:
+  contents: write   # commit refreshed data/ back to the repo
+  pages: write      # deploy index.html to GitHub Pages
+  id-token: write   # required by actions/deploy-pages
+
+concurrency:
+  group: reddit-monitor
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run monitor
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          chmod +x monitor.sh render.py
+          ./monitor.sh
+
+      - name: Commit refreshed data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/alerts.json data/seen.txt
+          if git diff --cached --quiet; then
+            echo "No new alerts — nothing to commit."
+          else
+            git commit -m "chore: refresh Reddit alerts [skip ci]"
+            git push
+          fi
+
+      - name: Stage Pages content
+        run: |
+          mkdir -p public
+          cp index.html public/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: fetch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
