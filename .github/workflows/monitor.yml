@@ -38,6 +38,16 @@ jobs:
           chmod +x monitor.sh render.py
           ./monitor.sh
 
+      - name: Surface monitor log in Actions UI
+        if: always()
+        run: |
+          echo "=== data/monitor.log ==="
+          tail -200 data/monitor.log || echo "(no log file)"
+          echo "=== seen.txt size ==="
+          wc -l data/seen.txt || true
+          echo "=== alerts count ==="
+          jq length data/alerts.json || true
+
       - name: Commit refreshed data
         run: |
           git config user.name  "github-actions[bot]"
