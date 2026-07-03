@@ -8,6 +8,9 @@ index.html
 # Valuation engine generated artefacts.
 valuation.html
 data/valuation.json
+# Stock engine generated artefacts.
+stock_*.html
+data/stock_*.json
 # Python bytecode.
 __pycache__/
 *.pyc

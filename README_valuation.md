@@ -68,9 +68,45 @@ présents :
 }
 ```
 
+## Analyse d'une action (ticker)
+
+Les 7 indicateurs ci-dessus sont **macro** : identiques quel que soit le titre.
+Pour analyser une **action précise**, `stock_engine.py` récupère ses propres
+fondamentaux depuis Yahoo Finance (sans clé API), les score sur la même échelle
+0-100 (0 = attractif/solide, 100 = cher/fragile) et les **combine avec le
+contexte macro** :
+
+```bash
+python stock_engine.py AAPL [MSFT ...]   # rapport + data/stock_<TICKER>.json
+python render_stock.py AAPL              # -> stock_AAPL.html
+python test_stock_engine.py             # tests offline (sans réseau)
+```
+
+Trois scores sont produits :
+
+| Score | Répond à |
+|---|---|
+| **Score titre** | Cette entreprise est-elle chère/bon marché et solide/fragile ? |
+| **Score marché** | L'environnement est-il tendu ? (plafonne les rendements) |
+| **Score global** | Perspective combinée (titre 60 % / marché 40 %) |
+
+Métriques du titre, par famille :
+
+- **Valorisation** : PEG, P/E, P/E anticipé, P/S, P/B
+- **Rentabilité** : marge nette, ROE, marge opérationnelle
+- **Croissance** : croissance BPA, croissance CA
+- **Solidité** : dette/capitaux, ratio de liquidité
+
+Les métriques « plus haut = mieux » (marges, croissance, ROE, liquidité) sont
+inversées : une valeur forte donne un score bas (favorable). Toute donnée
+manquante est ignorée et les poids se renormalisent.
+
 ## Fichiers
 
-- `valuation_engine.py` — moteur (scoring, composite, verdict, rendement estimé) + CLI
-- `render_valuation.py` — rendu du dashboard `valuation.html`
-- `test_valuation_engine.py` — tests unitaires (stdlib, aucune dépendance)
-- `data/indicators.json` — relevés d'entrée
+- `valuation_engine.py` — moteur macro (scoring, composite, verdict, rendement) + CLI
+- `render_valuation.py` — rendu du dashboard macro `valuation.html`
+- `test_valuation_engine.py` — tests du moteur macro
+- `stock_engine.py` — moteur titre (fetch Yahoo + scoring + combinaison macro) + CLI
+- `render_stock.py` — rendu du dashboard titre `stock_<TICKER>.html`
+- `test_stock_engine.py` — tests du moteur titre (offline)
+- `data/indicators.json` — relevés macro d'entrée
