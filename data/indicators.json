@@ -1,0 +1,10 @@
+{
+  "_comment": "Relevés macro de valorisation du marché actions US. Mettez à jour ces valeurs puis relancez `python valuation_engine.py`.",
+  "shiller_cape": 41.6,
+  "buffett_indicator": 218,
+  "tobins_q": 1.82,
+  "sp500_m2": 0.325,
+  "hy_credit_spread": 2.74,
+  "vix": 16.6,
+  "yield_curve_10y2y": 0.35
+}

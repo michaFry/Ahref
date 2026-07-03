@@ -5,3 +5,9 @@ data/cron.out
 public/
 # Local-run artefact — workflow generates it fresh in CI.
 index.html
+# Valuation engine generated artefacts.
+valuation.html
+data/valuation.json
+# Python bytecode.
+__pycache__/
+*.pyc
