@@ -111,6 +111,46 @@ def test_analyze_ticker_with_injected_macro(monkeypatch=None):
     assert lo <= a["combined"]["global_score"] <= hi
 
 
+def test_is_sp500_aliases():
+    from stock_engine import is_sp500
+    for t in ["^GSPC", "gspc", "SP500", "spx", "S&P500", "us500"]:
+        assert is_sp500(t), t
+    for t in ["AAPL", "MSFT", "SPYX"]:
+        assert not is_sp500(t), t
+
+
+def test_index_scoring_uses_valuation_and_growth_only():
+    # Index has no margins/debt -> only valuation + growth families present.
+    f = {"trailing_pe": 28, "price_to_book": 5, "price_to_sales": 3,
+         "earnings_growth": 0.17}
+    r = score_stock(f)
+    assert r["n_metrics"] == 4
+    assert set(r["family_scores"]) == {"valuation", "growth"}
+    assert 30 <= r["stock_score"] <= 60
+
+
+def test_analyze_index_routes_to_multpl(monkeypatch=None):
+    import stock_engine
+    fake = {
+        "ticker": "SP500", "name": "S&P 500 (indice)", "sector": "Indice actions US",
+        "industry": None,
+        "price": {"price": 7483, "currency": "USD", "week52_high": 7620,
+                  "week52_low": 6201, "market_cap": None, "recommendation": None},
+        "fundamentals": {"trailing_pe": 28, "price_to_book": 5,
+                         "price_to_sales": 3, "earnings_growth": 0.17},
+        "extra": {"shiller_cape": 41.6, "dividend_yield_pct": 1.15},
+    }
+    orig = stock_engine.fetch_sp500_fundamentals
+    stock_engine.fetch_sp500_fundamentals = lambda: fake
+    try:
+        a = analyze_ticker("^GSPC", macro_readings={"shiller_cape": 41.6, "vix": 16.6})
+    finally:
+        stock_engine.fetch_sp500_fundamentals = orig
+    assert a["ticker"] == "SP500"
+    assert a["extra"]["shiller_cape"] == 41.6
+    assert a["combined"] is not None
+
+
 def run() -> int:
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     failed = 0

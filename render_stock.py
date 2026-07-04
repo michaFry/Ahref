@@ -101,6 +101,18 @@ def render(ticker: str) -> pathlib.Path:
         reco = (f'<span class="reco">Consensus analystes Yahoo : '
                 f'<b>{html.escape(str(p["recommendation"]))}</b></span>')
 
+    ex = a.get("extra") or {}
+    is_index = bool(ex) or (a.get("sector") or "").startswith("Indice")
+    ex_bits = []
+    if ex.get("shiller_cape") is not None:
+        ex_bits.append(f'CAPE {ex["shiller_cape"]:g}')
+    if ex.get("dividend_yield_pct") is not None:
+        ex_bits.append(f'rendement {ex["dividend_yield_pct"]:g}%')
+    if ex_bits:
+        reco = f'<span class="reco">{html.escape(" · ".join(ex_bits))}</span>'
+    data_src = ("Agrégats multpl.com (P/E, P/B, P/S, croissance)" if is_index
+                else "Données fondamentales Yahoo Finance")
+
     out = ROOT / f"stock_{a['ticker']}.html"
     out.write_text(f"""<!DOCTYPE html>
 <html lang="fr">
@@ -165,8 +177,8 @@ def render(ticker: str) -> pathlib.Path:
 {combined_block}
 
 <footer>
-  Score 0 = attractif / solide, 100 = cher / fragile. Données fondamentales
-  Yahoo Finance ; le score marché provient du moteur macro (data/indicators.json).
+  Score 0 = attractif / solide, 100 = cher / fragile. {html.escape(data_src)} ;
+  le score marché provient du moteur macro (data/indicators.json).
   Outil d'orientation, pas un conseil en investissement.
 </footer>
 </body>

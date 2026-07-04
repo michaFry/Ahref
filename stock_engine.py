@@ -33,6 +33,8 @@ from __future__ import annotations
 import http.cookiejar
 import json
 import pathlib
+import re
+import subprocess
 import sys
 import urllib.parse
 import urllib.request
@@ -155,6 +157,85 @@ def fetch_fundamentals(ticker: str) -> dict[str, Any]:
         "industry": raw("assetProfile", "industry"),
         "price": price_ctx,
         "fundamentals": fundamentals,
+    }
+
+
+# --------------------------------------------------------------------------
+# Index support (S&P 500): Yahoo has no index-level fundamentals, so aggregate
+# valuation ratios are scraped from multpl.com instead.
+# --------------------------------------------------------------------------
+_SP500_ALIASES = {"^GSPC", "GSPC", "^SPX", "SPX", "SP500", "S&P500", "SPX500",
+                  "^INX", "INX", "US500"}
+_MULTPL_UA = "Mozilla/5.0"
+
+
+def _curl(url: str, ua: str | None = None, timeout: int = 25) -> bytes:
+    cmd = ["curl", "-fsSL", "--max-time", str(timeout)]
+    if ua:
+        cmd += ["-A", ua]
+    cmd.append(url)
+    return subprocess.run(cmd, capture_output=True, check=True).stdout
+
+
+def _multpl_latest(slug: str) -> float | None:
+    """Most recent value from a multpl.com by-month table (e.g. S&P 500 P/E)."""
+    html = _curl(f"https://www.multpl.com/{slug}/table/by-month",
+                 ua=_MULTPL_UA).decode("utf-8", "ignore")
+    cells = re.findall(r"<td[^>]*>\s*([^<]+?)\s*</td>", html)
+    for i, c in enumerate(cells):
+        if re.match(r"[A-Za-z]{3}\s+\d", c):  # a date cell -> value follows
+            for j in range(i + 1, min(i + 3, len(cells))):
+                m = re.search(r"-?\d+\.\d+", cells[j].replace(",", ""))
+                if m:
+                    return float(m.group())
+    return None
+
+
+def _sp500_price() -> dict[str, Any]:
+    """S&P 500 level + 52-week range from Yahoo's (fundamental-free) chart API."""
+    try:
+        opener = _build_opener()
+        url = ("https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC"
+               "?range=1y&interval=1d")
+        meta = json.loads(_get(opener, url))["chart"]["result"][0]["meta"]
+        return {
+            "price": meta.get("regularMarketPrice"),
+            "currency": meta.get("currency"),
+            "week52_high": meta.get("fiftyTwoWeekHigh"),
+            "week52_low": meta.get("fiftyTwoWeekLow"),
+            "market_cap": None,
+            "recommendation": None,
+        }
+    except Exception:  # noqa: BLE001
+        return {"price": None, "currency": None, "week52_high": None,
+                "week52_low": None, "market_cap": None, "recommendation": None}
+
+
+def fetch_sp500_fundamentals() -> dict[str, Any]:
+    """Aggregate S&P 500 fundamentals from multpl.com, in fetch_fundamentals shape."""
+    pe = _multpl_latest("s-p-500-pe-ratio")
+    pb = _multpl_latest("s-p-500-price-to-book")
+    ps = _multpl_latest("s-p-500-price-to-sales")
+    eg = _multpl_latest("s-p-500-earnings-growth")   # percent
+    dy = _multpl_latest("s-p-500-dividend-yield")    # percent
+    cape = _multpl_latest("shiller-pe")
+    fundamentals = {
+        "trailing_pe": pe,
+        "price_to_book": pb,
+        "price_to_sales": ps,
+        "earnings_growth": (eg / 100.0) if eg is not None else None,
+    }
+    if not any(v is not None for v in fundamentals.values()):
+        raise RuntimeError("Impossible de récupérer les fondamentaux agrégés du "
+                           "S&P 500 depuis multpl.com.")
+    return {
+        "ticker": "SP500",
+        "name": "S&P 500 (indice)",
+        "sector": "Indice actions US",
+        "industry": None,
+        "price": _sp500_price(),
+        "fundamentals": fundamentals,
+        "extra": {"shiller_cape": cape, "dividend_yield_pct": dy},
     }
 
 
@@ -336,8 +417,12 @@ def _combined_note(stock: float, macro: float) -> str:
             "titre lui-même ; exiger une décote ou un catalyseur.")
 
 
+def is_sp500(ticker: str) -> bool:
+    return ticker.strip().upper().replace(" ", "") in _SP500_ALIASES
+
+
 def analyze_ticker(ticker: str, macro_readings: dict | None = None) -> dict[str, Any]:
-    data = fetch_fundamentals(ticker)
+    data = fetch_sp500_fundamentals() if is_sp500(ticker) else fetch_fundamentals(ticker)
     stock = score_stock(data["fundamentals"])
 
     macro = None
@@ -366,6 +451,7 @@ def analyze_ticker(ticker: str, macro_readings: dict | None = None) -> dict[str,
         "sector": data["sector"],
         "industry": data["industry"],
         "price": data["price"],
+        "extra": data.get("extra"),
         "stock": stock,
         "macro": {
             "composite_score": macro["composite_score"],
@@ -396,6 +482,14 @@ def print_report(a: dict[str, Any]) -> None:
         if p.get("week52_low") and p.get("week52_high"):
             line += f"   (52 s. : {p['week52_low']:g}–{p['week52_high']:g})"
         print(line)
+    ex = a.get("extra") or {}
+    ctx = []
+    if ex.get("shiller_cape") is not None:
+        ctx.append(f"CAPE {ex['shiller_cape']:g}")
+    if ex.get("dividend_yield_pct") is not None:
+        ctx.append(f"rendement {ex['dividend_yield_pct']:g}%")
+    if ctx:
+        print(f"  {' · '.join(ctx)}")
     print("=" * 60)
     st = a["stock"]
     for r in st["metrics"]:

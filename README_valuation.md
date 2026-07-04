@@ -105,6 +105,16 @@ python render_stock.py AAPL              # -> stock_AAPL.html
 python test_stock_engine.py             # tests offline (sans réseau)
 ```
 
+**Indice S&P 500** — Yahoo ne fournit pas de fondamentaux agrégés pour un
+indice, donc `SP500` / `^GSPC` sont routés vers **multpl.com** (P/E, P/B, P/S,
+croissance des bénéfices agrégés) et scorés avec le même cadre (familles
+valorisation + croissance uniquement) :
+
+```bash
+python stock_engine.py SP500   # ou ^GSPC / SPX
+python render_stock.py SP500
+```
+
 Trois scores sont produits :
 
 | Score | Répond à |
