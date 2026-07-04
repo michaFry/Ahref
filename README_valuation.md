@@ -42,16 +42,38 @@ Le composite est la moyenne pondérée des scores. Bandes de verdict : sous-valo
 ## Utilisation
 
 ```bash
-# 1. Éditez les relevés dans data/indicators.json
+# 1. (optionnel) Récupérez ~1 an d'historique mensuel + synchronisez les
+#    derniers relevés (écrit data/history.json et met à jour data/indicators.json)
+python fetch_history.py
+
 # 2. Lancez le moteur (écrit data/valuation.json + rapport console)
 python valuation_engine.py [data/indicators.json]
 
-# 3. Générez le dashboard HTML
+# 3. Générez le dashboard HTML (un mini-graphe 1 an sous chaque indicateur)
 python render_valuation.py   # -> valuation.html
 
 # Tests
 python test_valuation_engine.py
 ```
+
+### Historique 1 an (sparklines)
+
+`fetch_history.py` construit `data/history.json` (~13 points mensuels par
+indicateur), affiché en sparkline sous chaque jauge du dashboard. Sources :
+
+| Indicateur | Source de l'historique |
+|---|---|
+| Shiller CAPE | multpl.com (réel) |
+| VIX | FRED `VIXCLS` (réel) |
+| High-yield spread | FRED `BAMLH0A0HYM2` (réel) |
+| Yield curve 10y-2y | FRED `T10Y2Y` (réel) |
+| S&P 500 / M2 | FRED `SP500` / `M2SL` (réel, calculé) |
+| Buffett indicator | dérivé de la trajectoire du S&P 500 (calé sur la valeur actuelle) |
+| Tobin's Q | dérivé de la trajectoire du S&P 500 (calé sur la valeur actuelle) |
+| Margin Debt / M2 | amorcé — pas de flux gratuit propre (FINRA) ; à mettre à jour à la main |
+
+Le récupérateur passe par `curl` (fiable derrière le proxy) et n'a aucune
+dépendance externe.
 
 Format d'entrée (`data/indicators.json`) — carte plate `{clé: valeur}` ; toute
 clé absente est ignorée et les poids se renormalisent sur les indicateurs

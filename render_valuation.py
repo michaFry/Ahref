@@ -14,7 +14,10 @@ from valuation_engine import FAMILIES
 
 ROOT = pathlib.Path(__file__).resolve().parent
 ANALYSIS = ROOT / "data" / "valuation.json"
+HISTORY = ROOT / "data" / "history.json"
 OUT = ROOT / "valuation.html"
+
+_W, _H, _PAD = 200, 44, 4  # sparkline geometry
 
 
 def score_color(score: float) -> str:
@@ -32,16 +35,68 @@ def score_color(score: float) -> str:
     return "#c1121f"
 
 
+def sparkline(series: dict, color: str) -> str:
+    """Return an inline SVG 1-year sparkline for one indicator series."""
+    pts = series.get("points", [])
+    if len(pts) < 2:
+        return ""
+    ys = [p[1] for p in pts]
+    lo, hi = min(ys), max(ys)
+    span = (hi - lo) or 1.0
+    n = len(pts)
+    xs = [_PAD + i * (_W - 2 * _PAD) / (n - 1) for i in range(n)]
+
+    def yv(v: float) -> float:
+        return _H - _PAD - (v - lo) / span * (_H - 2 * _PAD)
+
+    coords = [(xs[i], yv(ys[i])) for i in range(n)]
+    line = " ".join(f"{x:.1f},{y:.1f}" for x, y in coords)
+    area = (f"{coords[0][0]:.1f},{_H - _PAD} " + line +
+            f" {coords[-1][0]:.1f},{_H - _PAD}")
+    lx, ly = coords[-1]
+    first, last = ys[0], ys[-1]
+    delta = last - first
+    pct = (delta / first * 100) if first else 0.0
+    arrow = "▲" if delta > 0 else ("▼" if delta < 0 else "→")
+    gid = f"g{abs(hash(tuple(ys))) % 100000}"
+    unit = html.escape(series.get("unit", ""))
+    src = html.escape(series.get("source", ""))
+    return f"""
+    <div class="spark">
+      <svg viewBox="0 0 {_W} {_H}" width="100%" height="{_H}" preserveAspectRatio="none"
+           role="img" aria-label="Historique 1 an">
+        <defs><linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="{color}" stop-opacity="0.22"/>
+          <stop offset="1" stop-color="{color}" stop-opacity="0"/>
+        </linearGradient></defs>
+        <polygon points="{area}" fill="url(#{gid})" stroke="none"/>
+        <polyline points="{line}" fill="none" stroke="{color}" stroke-width="1.6"
+                  stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="{lx:.1f}" cy="{ly:.1f}" r="2.6" fill="{color}"/>
+      </svg>
+      <div class="spark-cap">
+        <span>1 an&nbsp;: <b style="color:{color}">{arrow} {delta:+.2g}{unit}</b>
+          ({pct:+.1f}%)</span>
+        <span class="range">{lo:g}–{hi:g}{unit}</span>
+        <span class="src">{src}</span>
+      </div>
+    </div>"""
+
+
 def main() -> None:
     if not ANALYSIS.exists():
         raise SystemExit("data/valuation.json manquant — lancez d'abord "
                          "`python valuation_engine.py`.")
     a = json.loads(ANALYSIS.read_text())
+    history = {}
+    if HISTORY.exists():
+        history = json.loads(HISTORY.read_text()).get("series", {})
 
     rows = []
     for r in a["indicators"]:
         col = score_color(r["score"])
         val = f'{r["value"]:g}{html.escape(r["unit"])}'
+        spark = sparkline(history[r["key"]], col) if r["key"] in history else ""
         rows.append(f"""
   <div class="ind">
     <div class="ind-head">
@@ -53,6 +108,7 @@ def main() -> None:
       <span class="score" style="color:{col}">{r['score']:g}/100 · {html.escape(r['assessment'])}</span>
       <span class="fam">{html.escape(FAMILIES.get(r['family'], r['family']))}</span>
     </div>
+    {spark}
     <p class="note">{html.escape(r["note"])}</p>
   </div>""")
 
@@ -109,6 +165,12 @@ def main() -> None:
   .ind-foot {{ display: flex; justify-content: space-between; font-size: 0.8em; }}
   .score {{ font-weight: 600; }}
   .fam {{ color: #999; }}
+  .spark {{ margin: 0.55em 0 0.15em; }}
+  .spark svg {{ display: block; border-radius: 4px; background: rgba(127,127,127,0.05); }}
+  .spark-cap {{ display: flex; flex-wrap: wrap; gap: 0.2em 0.9em; font-size: 0.74em;
+               color: #888; margin-top: 0.2em; }}
+  .spark-cap .range {{ font-variant-numeric: tabular-nums; }}
+  .spark-cap .src {{ margin-left: auto; font-style: italic; opacity: 0.8; }}
   .note {{ font-size: 0.82em; color: #777; margin: 0.4em 0 0; }}
   footer {{ margin-top: 2em; font-size: 0.75em; color: #999; border-top: 1px solid #ddd;
            padding-top: 0.8em; }}
