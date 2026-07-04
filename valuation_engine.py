@@ -144,6 +144,18 @@ INDICATORS: list[Indicator] = [
              "de l'effet monétaire sur les cours.",
     ),
     Indicator(
+        key="margin_debt_m2",
+        label="Margin Debt / M2",
+        unit="%",
+        weight=0.9,
+        family="sentiment",
+        higher_is_richer=True,
+        anchors=[(2.0, 0), (2.8, 20), (3.5, 40), (4.2, 60), (4.8, 75), (5.5, 88), (6.3, 100)],
+        note="Dette sur marge (effet de levier des investisseurs) / masse "
+             "monétaire M2. Les pics de levier accompagnent les sommets de "
+             "marché (2000, 2007, 2021).",
+    ),
+    Indicator(
         key="hy_credit_spread",
         label="High-yield credit spread",
         unit="pp",

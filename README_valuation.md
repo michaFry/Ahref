@@ -17,6 +17,7 @@ estimation du rendement réel décennal (via le CAPE).
 | Buffett Indicator (Mkt Cap / PIB) | Valorisation | 1.5 | ↑ = plus cher |
 | Tobin's Q | Valorisation | 1.3 | ↑ = plus cher |
 | S&P 500 / M2 | Valorisation | 0.8 | ↑ = plus cher |
+| Margin Debt / M2 | Sentiment | 0.9 | ↑ = plus de levier / exubérance |
 | High-yield credit spread | Sentiment | 0.7 | en U (serré = complaisance, large = stress) |
 | VIX | Sentiment | 0.6 | en U (bas = complaisance, haut = peur/contrarien) |
 | Yield curve (10y-2y) | Cycle | 0.9 | inversion = alerte récession |

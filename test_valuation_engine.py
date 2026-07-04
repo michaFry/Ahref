@@ -65,6 +65,7 @@ def test_full_analysis_current_readings():
         "buffett_indicator": 218,
         "tobins_q": 1.82,
         "sp500_m2": 0.325,
+        "margin_debt_m2": 5.5,
         "hy_credit_spread": 2.74,
         "vix": 16.6,
         "yield_curve_10y2y": 0.35,
@@ -72,7 +73,7 @@ def test_full_analysis_current_readings():
     a = analyze(readings)
     # These readings are historically extreme -> composite must land high.
     assert a["composite_score"] > 70, a["composite_score"]
-    assert len(a["indicators"]) == 7
+    assert len(a["indicators"]) == 8
     assert set(a["family_scores"]) == {"valuation", "sentiment", "cycle"}
     assert a["expected_10y_real_return_pct"] is not None
 
