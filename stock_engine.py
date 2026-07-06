@@ -38,8 +38,9 @@ import subprocess
 import sys
 import urllib.parse
 import urllib.request
+from collections import OrderedDict
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from valuation_engine import DEFAULT_INPUT, analyze as analyze_macro, interpolate
@@ -191,6 +192,50 @@ def _multpl_latest(slug: str) -> float | None:
     return None
 
 
+def _multpl_history(slug: str, months: int = 13) -> "OrderedDict[str, float]":
+    """Monthly {YYYY-MM: value} from a multpl by-month table (chronological)."""
+    html = _curl(f"https://www.multpl.com/{slug}/table/by-month",
+                 ua=_MULTPL_UA).decode("utf-8", "ignore")
+    cells = re.findall(r"<td[^>]*>\s*([^<]+?)\s*</td>", html)
+    out: "OrderedDict[str, float]" = OrderedDict()
+    for i, c in enumerate(cells):
+        dm = re.match(r"([A-Za-z]{3})\s+\d{1,2},\s+(\d{4})", c)
+        if not dm:
+            continue
+        for j in range(i + 1, min(i + 3, len(cells))):
+            m = re.search(r"-?\d+\.\d+", cells[j].replace(",", ""))
+            if m:
+                mon = datetime.strptime(f"{dm.group(1)} {dm.group(2)}",
+                                        "%b %Y").strftime("%Y-%m")
+                out.setdefault(mon, float(m.group()))
+                break
+    chrono = OrderedDict(reversed(list(out.items())))
+    return OrderedDict(list(chrono.items())[-months:])
+
+
+def _fred_sp500_monthly(months: int = 13) -> "OrderedDict[str, float]":
+    """Monthly S&P 500 level from FRED (last obs per month). curl default UA."""
+    cosd = (datetime.now(timezone.utc) - timedelta(days=32 * months)).strftime("%Y-%m-%d")
+    csv = _curl(f"https://fred.stlouisfed.org/graph/fredgraph.csv"
+                f"?id=SP500&cosd={cosd}").decode()
+    by_month: "OrderedDict[str, float]" = OrderedDict()
+    for line in csv.splitlines()[1:]:
+        parts = line.split(",")
+        if len(parts) == 2 and parts[1] not in (".", "", "NaN"):
+            try:
+                by_month[parts[0][:7]] = float(parts[1])
+            except ValueError:
+                pass
+    return OrderedDict(list(by_month.items())[-months:])
+
+
+def _derive_from_sp500(current: float, sp: "OrderedDict[str, float]") -> list[list]:
+    """A monthly series that tracks the S&P 500 path, ending at ``current``."""
+    items = list(sp.items())
+    latest = items[-1][1]
+    return [[mon, round(current * lvl / latest, 4)] for mon, lvl in items]
+
+
 def _sp500_price() -> dict[str, Any]:
     """S&P 500 level + 52-week range from Yahoo's (fundamental-free) chart API."""
     try:
@@ -228,6 +273,32 @@ def fetch_sp500_fundamentals() -> dict[str, Any]:
     if not any(v is not None for v in fundamentals.values()):
         raise RuntimeError("Impossible de récupérer les fondamentaux agrégés du "
                            "S&P 500 depuis multpl.com.")
+
+    # 1-year monthly history: P/E is monthly on multpl (real); P/B and P/S are
+    # only annual there, so they are derived from the S&P 500 monthly path
+    # (scaled to the current reading). Earnings growth has no monthly series.
+    history: dict[str, dict] = {}
+    try:
+        pe_h = _multpl_history("s-p-500-pe-ratio")
+        if len(pe_h) >= 2:
+            history["trailing_pe"] = {"source": "multpl.com", "unit": "x",
+                                      "points": [[k, v] for k, v in pe_h.items()]}
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        sp = _fred_sp500_monthly()
+        if len(sp) >= 2:
+            if pb is not None:
+                history["price_to_book"] = {"source": "dérivé (prix S&P 500)",
+                                            "unit": "x",
+                                            "points": _derive_from_sp500(pb, sp)}
+            if ps is not None:
+                history["price_to_sales"] = {"source": "dérivé (prix S&P 500)",
+                                             "unit": "x",
+                                             "points": _derive_from_sp500(ps, sp)}
+    except Exception:  # noqa: BLE001
+        pass
+
     return {
         "ticker": "SP500",
         "name": "S&P 500 (indice)",
@@ -236,6 +307,7 @@ def fetch_sp500_fundamentals() -> dict[str, Any]:
         "price": _sp500_price(),
         "fundamentals": fundamentals,
         "extra": {"shiller_cape": cape, "dividend_yield_pct": dy},
+        "history": history,
     }
 
 
@@ -452,6 +524,7 @@ def analyze_ticker(ticker: str, macro_readings: dict | None = None) -> dict[str,
         "industry": data["industry"],
         "price": data["price"],
         "extra": data.get("extra"),
+        "history": data.get("history"),
         "stock": stock,
         "macro": {
             "composite_score": macro["composite_score"],

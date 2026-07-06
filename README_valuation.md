@@ -115,6 +115,11 @@ python stock_engine.py SP500   # ou ^GSPC / SPX
 python render_stock.py SP500
 ```
 
+Le dashboard S&P 500 affiche aussi un **sparkline 1 an** sous chaque métrique :
+P/E en réel mensuel (multpl), P/B et P/S dérivés de la trajectoire mensuelle de
+l'indice (FRED `SP500`, calés sur la valeur actuelle). La croissance des
+bénéfices n'a pas de sparkline (multpl ne la publie qu'en annuel).
+
 Trois scores sont produits :
 
 | Score | Répond à |

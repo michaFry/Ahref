@@ -14,6 +14,7 @@ import pathlib
 import sys
 
 from stock_engine import STOCK_FAMILIES
+from render_valuation import sparkline
 
 ROOT = pathlib.Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
@@ -38,10 +39,12 @@ def render(ticker: str) -> pathlib.Path:
                          f"`python stock_engine.py {ticker.upper()}`.")
     a = json.loads(src.read_text())
     st = a["stock"]
+    hist = a.get("history") or {}
 
     rows = []
     for r in st["metrics"]:
         col = score_color(r["score"])
+        spark = sparkline(hist[r["key"]], col) if r["key"] in hist else ""
         rows.append(f"""
   <div class="ind">
     <div class="ind-head">
@@ -53,6 +56,7 @@ def render(ticker: str) -> pathlib.Path:
       <span class="score" style="color:{col}">{r['score']:g}/100 · {html.escape(r['assessment'])}</span>
       <span class="fam">{html.escape(STOCK_FAMILIES.get(r['family'], r['family']))}</span>
     </div>
+    {spark}
     <p class="note">{html.escape(r["note"])}</p>
   </div>""")
 
@@ -152,6 +156,12 @@ def render(ticker: str) -> pathlib.Path:
   .ind-foot {{ display: flex; justify-content: space-between; font-size: 0.8em; }}
   .score {{ font-weight: 600; }}
   .fam {{ color: #999; }}
+  .spark {{ margin: 0.55em 0 0.15em; }}
+  .spark svg {{ display: block; border-radius: 4px; background: rgba(127,127,127,0.05); }}
+  .spark-cap {{ display: flex; flex-wrap: wrap; gap: 0.2em 0.9em; font-size: 0.74em;
+               color: #888; margin-top: 0.2em; }}
+  .spark-cap .range {{ font-variant-numeric: tabular-nums; }}
+  .spark-cap .src {{ margin-left: auto; font-style: italic; opacity: 0.8; }}
   .note {{ font-size: 0.82em; color: #777; margin: 0.4em 0 0; }}
   footer {{ margin-top: 2em; font-size: 0.75em; color: #999; border-top: 1px solid #ddd;
            padding-top: 0.8em; }}
